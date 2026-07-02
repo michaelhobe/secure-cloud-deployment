@@ -1,0 +1,28 @@
+name: Secure Automated Deployment to S3
+
+# This triggers the pipeline every time someone updates the code in the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Download the code from GitHub onto the cloud runner
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # Step 2: Log into AWS using the secure keys saved in GitHub Secrets
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1 # Keep us-east-1 or change to your specific AWS region
+
+    # Step 3: Copy the files directly into your encrypted AWS S3 bucket
+    - name: Deploy files to S3
+      run: |
+        aws s3 cp index.html s3://sae-project1-amzn-s3-bucket/index.html
